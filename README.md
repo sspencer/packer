@@ -16,6 +16,24 @@ Preview app, other OSes will get a Exit 1 code.
 
 Eventual goal is to turn this into a sprite packer utility, that takes
 a directory of PNGs and outputs a sprite image and stylesheet, packing
-the images as tight as possible.  Images can be packed tighter simply
-by sorting them in differnt orders (height first, width first, etc).
+the images as tight as possible.
 
+Channels are used for an "embarrassingly parallel" problem ... pack the
+images in 4 different ways by sorting the images differently:
+
+* sort by width
+* sort by height
+* sort by area
+* sort by max side (width or height)
+
+By changing the sort order of the images, an occasional advantage can
+be realized.
+
+For example:
+
+	==== Packing complex ====
+	LayoutByWidth <650x730> has wasted 194700 pixels
+	LayoutByArea <650x650> has wasted 142700 pixels
+	LayoutByHeight <530x530> has wasted 1100 pixels
+	LayoutByMax <730x400> has wasted 12200 pixels
+	>>>> RETURNING  LayoutByHeight

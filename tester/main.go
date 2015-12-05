@@ -116,7 +116,7 @@ func pack(name string, blocks []string) {
 	for _, block := range blocks {
 		w, h, n := parse(block)
 		for i := 0; i < n; i++ {
-			sprites = append(sprites, packer.NewSprite("", 0, 0, w, h))
+			sprites = append(sprites, packer.NewSprite("", w, h))
 		}
 	}
 
@@ -161,6 +161,7 @@ func main() {
 	names := make([]string, len(examples))
 	i := 0
 	for name, blocks := range examples {
+		fmt.Println("==== Packing", name, "====")
 		pack(name, blocks)
 		names[i] = fmt.Sprintf("%s.png", name)
 	}

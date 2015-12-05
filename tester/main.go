@@ -15,7 +15,7 @@ import (
 	"github.com/sspencer/packer"
 )
 
-type stuff []string
+type blockdef []string
 
 var (
 	pastels = []color.Color{
@@ -26,7 +26,7 @@ var (
 		color.RGBA{255, 203, 165, 255}, // orange
 	}
 
-	examples = map[string]stuff{
+	examples = map[string]blockdef{
 		"simple": {
 			"500x200",
 			"250x200",
@@ -98,30 +98,23 @@ var (
 	}
 )
 
-type colors []color.Color
-
-func main() {
-	names := make([]string, len(examples))
-	i := 0
-	for name, blocks := range examples {
-		pack(name, blocks)
-		names[i] = fmt.Sprintf("%s.png", name)
+// parse blockdef "(width)x(height)x(num)" or "(width)x(height)"
+func parse(block string) (int, int, int) {
+	s := strings.Split(block, "x")
+	w, _ := strconv.Atoi(s[0])
+	h, _ := strconv.Atoi(s[1])
+	n := 1
+	if len(s) > 2 {
+		n, _ = strconv.Atoi(s[2])
 	}
 
-	show(names...)
+	return w, h, n
 }
 
 func pack(name string, blocks []string) {
 	sprites := make(packer.Sprites, 0)
 	for _, block := range blocks {
-		s := strings.Split(block, "x")
-		w, _ := strconv.Atoi(s[0])
-		h, _ := strconv.Atoi(s[1])
-		n := 1
-		if len(s) > 2 {
-			n, _ = strconv.Atoi(s[2])
-		}
-
+		w, h, n := parse(block)
 		for i := 0; i < n; i++ {
 			sprites = append(sprites, packer.NewSprite("", 0, 0, w, h))
 		}
@@ -162,4 +155,15 @@ func show(names ...string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+	names := make([]string, len(examples))
+	i := 0
+	for name, blocks := range examples {
+		pack(name, blocks)
+		names[i] = fmt.Sprintf("%s.png", name)
+	}
+
+	show(names...)
 }

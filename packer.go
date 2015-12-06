@@ -79,7 +79,9 @@ func doit(ch chan<- *Canvas, sprites Sprites, layout Layout) {
 	ch <- canvas
 }
 
-// Fit sprites
+// Fit sprites in a rectangle.  Sprites must be sorted before calling Fit.  It's
+// easiest to call BestFit which calls this method with 4 different sorts to
+// determine the tightest packing.
 func Fit(sprites Sprites) *Canvas {
 
 	root := newPosSprite("", 0, 0, sprites[0].Width, sprites[0].Height)

@@ -138,7 +138,6 @@ func render(name string, c *packer.Canvas) {
 	w, _ := os.Create(name + ".png")
 	defer w.Close()
 	png.Encode(w, img)
-
 }
 
 // open all the images in Preview app on OSX.

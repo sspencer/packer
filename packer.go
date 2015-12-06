@@ -89,11 +89,11 @@ func Fit(sprites Sprites) *Canvas {
 		w := sprite.Width
 		h := sprite.Height
 		if node := canvas.findNode(canvas.Root, w, h); node != nil {
-			sprite.Fit = canvas.splitNode(node, w, h)
+			sprite.fit = canvas.splitNode(node, w, h)
 		} else {
-			sprite.Fit = canvas.growNode(w, h)
+			sprite.fit = canvas.growNode(w, h)
 		}
-		sprite.Fit.Name = sprite.Name
+		sprite.fit.Name = sprite.Name
 	}
 
 	return canvas.dup(sprites)
@@ -104,18 +104,18 @@ func (c *Canvas) dup(nodes Sprites) *Canvas {
 	root := newPosSprite("#root#", r.X, r.Y, r.Width, r.Height)
 	sprites := make(Sprites, len(nodes))
 	for i, s := range nodes {
-		sprites[i] = s.Fit
+		sprites[i] = s.fit
 	}
 
 	return &Canvas{Root: root, Sprites: sprites}
 }
 
 func (c *Canvas) findNode(node *Sprite, w, h int) *Sprite {
-	if node.Used {
-		if r := c.findNode(node.Right, w, h); r != nil {
+	if node.used {
+		if r := c.findNode(node.right, w, h); r != nil {
 			return r
 		}
-		return c.findNode(node.Down, w, h)
+		return c.findNode(node.down, w, h)
 	} else if w <= node.Width && h <= node.Height {
 		return node
 	}
@@ -124,9 +124,9 @@ func (c *Canvas) findNode(node *Sprite, w, h int) *Sprite {
 }
 
 func (c *Canvas) splitNode(node *Sprite, w, h int) *Sprite {
-	node.Used = true
-	node.Down = newPosSprite("", node.X, node.Y+h, node.Width, node.Height-h)
-	node.Right = newPosSprite("", node.X+w, node.Y, node.Width-w, h)
+	node.used = true
+	node.down = newPosSprite("", node.X, node.Y+h, node.Width, node.Height-h)
+	node.right = newPosSprite("", node.X+w, node.Y, node.Width-w, h)
 	node.Width = w
 	node.Height = h
 
@@ -169,9 +169,9 @@ func dup(s *Sprite) *Sprite {
 
 func (c *Canvas) growRight(w, h int) *Sprite {
 	newRoot := newPosSprite("", 0, 0, c.Root.Width+w, c.Root.Height)
-	newRoot.Used = true
-	newRoot.Down = dup(c.Root)
-	newRoot.Right = newPosSprite("", c.Root.Width, 0, w, c.Root.Height)
+	newRoot.used = true
+	newRoot.down = dup(c.Root)
+	newRoot.right = newPosSprite("", c.Root.Width, 0, w, c.Root.Height)
 
 	c.Root = newRoot
 
@@ -184,9 +184,9 @@ func (c *Canvas) growRight(w, h int) *Sprite {
 
 func (c *Canvas) growDown(w, h int) *Sprite {
 	newRoot := newPosSprite("", 0, 0, c.Root.Width, c.Root.Height+h)
-	newRoot.Used = true
-	newRoot.Down = newPosSprite("", 0, c.Root.Height, c.Root.Width, h)
-	newRoot.Right = dup(c.Root)
+	newRoot.used = true
+	newRoot.down = newPosSprite("", 0, c.Root.Height, c.Root.Width, h)
+	newRoot.right = dup(c.Root)
 
 	c.Root = newRoot
 

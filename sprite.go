@@ -16,10 +16,10 @@ type Sprite struct {
 	Y      int
 	Width  int
 	Height int
-	Used   bool
-	Fit    *Sprite
-	Right  *Sprite
-	Down   *Sprite
+	used   bool
+	fit    *Sprite
+	right  *Sprite
+	down   *Sprite
 }
 
 // Sprites is a slice of Sprite

@@ -27,6 +27,16 @@ var (
 	}
 
 	examples = map[string]blockdef{
+
+		"icons": {
+			"283x75x2",
+			"270x45",
+			"238x43x2",
+			"86x32",
+			"45x45x14",
+			"28x20x4",
+		},
+
 		"simple": {
 			"500x200",
 			"250x200",
@@ -111,16 +121,16 @@ func parse(block string) (int, int, int) {
 	return w, h, n
 }
 
-func pack(name string, blocks []string) {
-	sprites := make(packer.Sprites, 0)
-	for _, block := range blocks {
-		w, h, n := parse(block)
+func pack(name string, rects []string) {
+	blocks := make(packer.Blocks, 0)
+	for _, b := range rects {
+		w, h, n := parse(b)
 		for i := 0; i < n; i++ {
-			sprites = append(sprites, packer.NewSprite("", w, h))
+			blocks = append(blocks, packer.NewBlock("", w, h))
 		}
 	}
 
-	canvas := packer.BestFit(sprites)
+	canvas := packer.BestFit(blocks)
 
 	render(name, canvas)
 }
@@ -129,7 +139,7 @@ func render(name string, c *packer.Canvas) {
 
 	img := image.NewRGBA(image.Rect(0, 0, c.Root.Width, c.Root.Height))
 
-	for n, s := range c.Sprites {
+	for n, s := range c.Blocks {
 		rect := image.Rect(s.X, s.Y, s.X+s.Width, s.Y+s.Height)
 		col := pastels[n%len(pastels)]
 		draw.Draw(img, rect, &image.Uniform{col}, image.ZP, draw.Src)

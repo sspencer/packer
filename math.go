@@ -1,7 +1,7 @@
 package packer
 
 func max(x, y int) int {
-	if x > y {
+	if x >= y {
 		return x
 	}
 	return y

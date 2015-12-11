@@ -16,6 +16,8 @@ Preview app, other OSes will get a Exit 1 code.
     $ cd tester
     $ go run main.go
 
+<img src="misc/screenshot.png?raw=true" />
+
 To generate an actual css sprite from your own directory of image, invoke
 the pack command:
 

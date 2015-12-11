@@ -18,12 +18,12 @@ import (
 type blockdef []string
 
 var (
-	pastels = []color.Color{
-		color.RGBA{255, 247, 165, 255}, // yellow
-		color.RGBA{255, 165, 224, 255}, // red
-		color.RGBA{165, 179, 255, 255}, // blue
-		color.RGBA{191, 255, 165, 255}, // green
-		color.RGBA{255, 203, 165, 255}, // orange
+	palette = []color.Color{
+		color.RGBA{116, 145, 161, 255},
+		color.RGBA{136, 170, 189, 255},
+		color.RGBA{151, 189, 209, 255},
+		color.RGBA{167, 209, 232, 255},
+		color.RGBA{184, 230, 255, 255},
 	}
 
 	examples = map[string]blockdef{
@@ -141,7 +141,7 @@ func render(name string, c *packer.Canvas) {
 
 	for n, s := range c.Blocks {
 		rect := image.Rect(s.X, s.Y, s.X+s.Width, s.Y+s.Height)
-		col := pastels[n%len(pastels)]
+		col := palette[n%len(palette)]
 		draw.Draw(img, rect, &image.Uniform{col}, image.ZP, draw.Src)
 	}
 

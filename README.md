@@ -18,11 +18,38 @@ Preview app, other OSes will get a Exit 1 code.
 
 <img src="misc/screenshot.png?raw=true" />
 
-To generate an actual css sprite from your own directory of image, invoke
-the pack command:
+To generate an actual css sprite from your own directory of images, invoke
+the pack command with a configuration file:
 
     $ cd cmd
-    $ go run pack.go -img some/path/to/icons
+    $ go run pack.go some/path/to/packer.toml file
+
+## Configuration
+
+The configuration file is evolving, but uses [TOML](https://github.com/toml-lang/toml),
+Tom's Obvious, Minimal Language.  All paths specified in the config file are relative to
+its location.
+
+* The **defaults** section sets defaults for all sprite configurations.
+* There may be one or more **sprite** sections.
+
+    # packer.toml
+	[defaults]
+	hover="_hover"
+	padding=4
+
+	[[sprite]]
+	includes=["./icons/*.png"]
+	excludes=["@2x.png"]
+	stylesheet="./sprites.css"
+	sprite="./sprites.png"
+	background=#00ff00ff  # rrggbbaa
+
+	[[sprite]]
+	includes=["./icons/*@2x.png"]
+	stylesheet="./sprites@2x.css"
+	sprite="./sprites@2x.png"
+	retina=true
 
 ## About the Code
 

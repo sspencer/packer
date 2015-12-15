@@ -7,10 +7,10 @@ import (
 	"sort"
 )
 
-func CreateSprite(dir string) (*image.RGBA, string, error) {
+// CreateSprite creates a sprite and stylesheet for the config data.
+func CreateSprite(config *SpriteConfig) (*image.RGBA, string, error) {
 
-	// get image map
-	images, err := readImages(dir)
+	images, err := getImageMap(config)
 	if err != nil {
 		return nil, "", err
 	}
@@ -24,15 +24,13 @@ func CreateSprite(dir string) (*image.RGBA, string, error) {
 		h := img.Bounds().Max.Y - img.Bounds().Min.Y
 		blocks[i] = NewBlock(name, w, h)
 
-		i += 1
+		i++
 	}
 
 	canvas := BestFit(blocks)
 
 	m := image.NewRGBA(image.Rect(0, 0, canvas.Root.Width, canvas.Root.Height))
-	//blue := color.RGBA{0, 0, 255, 255}
-	//draw.Draw(m, m.Bounds(), &image.Uniform{blue}, image.ZP, draw.Src)
-	draw.Draw(m, m.Bounds(), image.Transparent, image.ZP, draw.Src)
+	draw.Draw(m, m.Bounds(), ColorToUniform(config.Background), image.ZP, draw.Src)
 
 	for _, b := range canvas.Blocks {
 		img, ok := images[b.Name]

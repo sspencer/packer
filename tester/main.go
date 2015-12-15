@@ -175,5 +175,5 @@ func main() {
 		names[i] = fmt.Sprintf("%s.png", name)
 	}
 
-	show(names...)
+	//show(names...)
 }

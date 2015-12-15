@@ -22,7 +22,7 @@ To generate an actual css sprite from your own directory of images, invoke
 the pack command with a configuration file:
 
     $ cd cmd
-    $ go run pack.go some/path/to/packer.toml file
+    $ go run pack.go some/path/to/packer.toml
 
 ## Configuration
 

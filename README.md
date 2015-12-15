@@ -33,23 +33,23 @@ its location.
 * The **defaults** section sets defaults for all sprite configurations.
 * There may be one or more **sprite** sections.
 
-    # packer.toml
-	[defaults]
-	hover="_hover"
-	padding=4
-
-	[[sprite]]
-	includes=["./icons/*.png"]
-	excludes=["@2x.png"]
-	stylesheet="./sprites.css"
-	sprite="./sprites.png"
-	background=#00ff00ff  # rrggbbaa
-
-	[[sprite]]
-	includes=["./icons/*@2x.png"]
-	stylesheet="./sprites@2x.css"
-	sprite="./sprites@2x.png"
-	retina=true
+```toml
+# packer.toml
+[defaults]
+hover="_hover"
+padding=4
+[[sprite]]
+includes=["./icons/*.png"]
+excludes=["@2x.png"]
+stylesheet="./sprites.css"
+sprite="./sprites.png"
+background=#00ff00ff  # rrggbbaa
+[[sprite]]
+includes=["./icons/*@2x.png"]
+stylesheet="./sprites@2x.css"
+sprite="./sprites@2x.png"
+retina=true
+```
 
 ## About the Code
 

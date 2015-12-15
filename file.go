@@ -13,9 +13,9 @@ import (
 	"strings"
 )
 
-func getImageMap(config *SpriteConfig) (images map[string]*image.Image, err error) {
+func getImageMap(config *SpriteConfig, retina bool) (images map[string]*image.Image, err error) {
 
-	imagePaths, err := getImagePaths(config)
+	imagePaths, err := getImagePaths(config, retina)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func getImageData(filenames []string) (images map[string]*image.Image, err error
 	return images, nil
 }
 
-func getImagePaths(config *SpriteConfig) ([]string, error) {
+func getImagePaths(config *SpriteConfig, retina bool) ([]string, error) {
 
 	var files []string
 
@@ -85,19 +85,12 @@ func getImagePaths(config *SpriteConfig) ([]string, error) {
 			return nil, fmt.Errorf("ERROR: Could not glob matching files:", err)
 		}
 
-		// add file to list if not excluded
-		if len(config.Excludes) == 0 {
-			files = append(files, matches...)
-		} else {
-			for _, m := range matches {
-				for _, x := range config.Excludes {
-					if strings.Index(m, x) == -1 {
-						files = append(files, m)
-					}
-				}
+		for _, m := range matches {
+			hasRetinaTag := (strings.Index(m, retinaTag) != -1)
+			if retina == hasRetinaTag {
+				files = append(files, m)
 			}
 		}
-
 	}
 
 	return files, nil

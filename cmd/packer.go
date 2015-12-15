@@ -2,11 +2,7 @@ package main
 
 import (
 	"fmt"
-	"image"
-	"image/png"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/sspencer/packer"
 )
@@ -16,69 +12,41 @@ const configFile = "./packer.toml"
 
 func main() {
 
-	var defaults = packer.SpriteDefaults{
-		Classname:  "icon-",
-		Background: "transparent",
-		Hover:      "",
-		Padding:    0,
-	}
-
 	if len(os.Args) >= 2 {
-		for _, fn := range os.Args[1:] {
-			pack(fn, &defaults)
-		}
+		pack(os.Args[1])
 	} else {
-		pack(configFile, &defaults)
+		pack(configFile)
 	}
 }
 
-func pack(filename string, defaults *packer.SpriteDefaults) {
-	var config *packer.SpritesConfig
+func pack(filename string) {
+	var c *packer.SpriteConfig
 	var err error
-	if config, err = packer.NewConfig(filename, defaults); err != nil {
+	if c, err = packer.NewConfig(filename); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
 	// var Discard io.Writer = devNull(0)
 
-	for _, c := range config.Sprites {
-		img, stylesheet, err := packer.CreateSprite(&c)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-
-		saveStylesheet(stylesheet, &c)
-		saveSprite(img, &c)
-	}
-}
-
-func saveStylesheet(stylesheet string, c *packer.SpriteConfig) {
-	fmt.Println("SAVE STYLESHEET")
-	var p string
-	var err error
-
-	if p, err = filepath.Abs(c.Stylesheet); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Can not write to file %q: %s", p, err)
+	r, err := packer.CreateSprite(c)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	if err = ioutil.WriteFile(p, []byte(stylesheet), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Failed writing to file %q: %s", p, err)
-	}
-}
-
-func saveSprite(img *image.RGBA, c *packer.SpriteConfig) {
-	fmt.Println("SAVE SPRITE")
-	var p string
-	var err error
-	if p, err = filepath.Abs(c.Sprite); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Can not write to file %q: %s", p, err)
+	if err = c.SaveStylesheet(r.Stylesheet); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
-	w, _ := os.Create(p)
-	defer w.Close()
-	png.Encode(w, img)
+	if err = c.SaveSprite(r.Sprite); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	if err = c.SaveRetinaSprite(r.Sprite2x); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }

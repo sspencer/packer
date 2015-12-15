@@ -7,12 +7,19 @@ import (
 	"sort"
 )
 
-// CreateSprite creates a sprite and stylesheet for the config data.
-func CreateSprite(config *SpriteConfig) (*image.RGBA, string, error) {
+type Result struct {
+	Sprite     *image.RGBA
+	Sprite2x   *image.RGBA
+	Stylesheet string
+}
 
-	images, err := getImageMap(config)
+// CreateSprite creates a sprite and stylesheet for the config data.
+func CreateSprite(config *SpriteConfig) (*Result, error) {
+
+	includeRetina := false
+	images, err := getImageMap(config, includeRetina)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	// create proxy for each image ... name + width + height
@@ -42,7 +49,7 @@ func CreateSprite(config *SpriteConfig) (*image.RGBA, string, error) {
 		}
 	}
 
-	return m, "tbd", nil
+	return &Result{m, nil, "tbd"}, nil
 }
 
 // BestFit packs blocks into a rectangle using 4 different sorting algorithms,

@@ -43,7 +43,7 @@ includes=["./icons/*.png"]
 excludes=["@2x.png"]
 stylesheet="./sprites.css"
 sprite="./sprites.png"
-background=#00ff00ff  # rrggbbaa
+background="#00ff00ff"  # rrggbbaa
 [[sprite]]
 includes=["./icons/*@2x.png"]
 stylesheet="./sprites@2x.css"

@@ -1,8 +1,11 @@
 # Packer
 
-Go implementation of a Binary Tree Algorithm for bin packing.  Based on
+Packer is a command line utility that creates CSS sprites.  It utilizes a
+binary tree algorithm to find the most efficient shape in which to pack
+the images (long rectangle, tall rectangle, square, etc).  This utility
+is written in Go and the algorithm is based on
 Jake Gordon's [bin-packing](https://github.com/jakesgordon/bin-packing)
-project on github.
+JavaScript project on github.
 
 There are not a lot of options yet and a stylesheet is not created yet,
 but a CSS Sprite image is created.

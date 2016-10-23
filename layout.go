@@ -1,6 +1,6 @@
 package packer
 
-// Layout is used to sort sprites in differnt ways to achieve differnt packs.
+// Layout is used to sort sprites in different ways to achieve differnt packs.
 //go:generate stringer -type=Layout
 type Layout int
 

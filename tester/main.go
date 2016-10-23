@@ -18,12 +18,23 @@ import (
 type blockdef []string
 
 var (
+	/*
+		palette = []color.Color{
+			color.RGBA{116, 145, 161, 255},
+			color.RGBA{136, 170, 189, 255},
+			color.RGBA{151, 189, 209, 255},
+			color.RGBA{167, 209, 232, 255},
+			color.RGBA{184, 230, 255, 255},
+		}
+	*/
 	palette = []color.Color{
-		color.RGBA{116, 145, 161, 255},
-		color.RGBA{136, 170, 189, 255},
-		color.RGBA{151, 189, 209, 255},
-		color.RGBA{167, 209, 232, 255},
-		color.RGBA{184, 230, 255, 255},
+		color.RGBA{253, 243, 171, 255},
+		color.RGBA{80, 153, 160, 255},
+		color.RGBA{26, 87, 142, 255},
+		color.RGBA{68, 61, 113, 255},
+		color.RGBA{215, 10, 67, 255},
+		color.RGBA{251, 90, 46, 255},
+		color.RGBA{139, 0, 65, 255},
 	}
 
 	examples = map[string]blockdef{

@@ -77,12 +77,12 @@ func getImagePaths(config *SpriteConfig, retina bool) ([]string, error) {
 	for _, s := range config.Includes {
 		j, err := filepath.Abs(s)
 		if err != nil {
-			return nil, fmt.Errorf("ERROR: Could not determine absolute path of includes:", err)
+			return nil, fmt.Errorf("ERROR: Could not determine absolute path of includes: %s", err)
 		}
 
 		matches, err := filepath.Glob(j)
 		if err != nil {
-			return nil, fmt.Errorf("ERROR: Could not glob matching files:", err)
+			return nil, fmt.Errorf("ERROR: Could not glob matching files: %s", err)
 		}
 
 		for _, m := range matches {

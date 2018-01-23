@@ -1,4 +1,0 @@
-package: github.com/sspencer/packer
-import:
-- package: github.com/BurntSushi/toml
-- package: github.com/spf13/viper

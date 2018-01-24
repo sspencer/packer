@@ -1,5 +1,7 @@
 *.png
 icons/
+img/
+css/
 *.toml
 *.css
 

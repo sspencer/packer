@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,38 +12,23 @@ import (
 	"strings"
 )
 
-func getImageMap(config *SpriteConfig, retina bool) (images map[string]*image.Image, err error) {
-
-	imagePaths, err := getImagePaths(config, retina)
-	if err != nil {
-		return nil, err
-	}
-
-	return getImageData(imagePaths)
-}
-
-// getImageData returns map of normalized file name (becomes css name) to image data.
-func getImageData(filenames []string) (images map[string]*image.Image, err error) {
-
-	images = make(map[string]*image.Image)
-
-	// image css class name gets normalized
+// Given list of file paths, return map of css name to (path/extension removed) to image data
+func (c *Config) getImages(files []string) (map[string]*image.Image, error) {
+	images := make(map[string]*image.Image)
 	re := regexp.MustCompile("([^-a-zA-Z0-9])")
 
-	for _, fn := range filenames {
-		log.Println(fn)
+	for _, fn := range files {
 		base := path.Base(fn)
 		ext := strings.ToLower(filepath.Ext(base))
 		name := re.ReplaceAllLiteralString(base[:len(base)-len(ext)], "-")
 
-		// filtering twice, but why open file needlessly if ext does not match
 		if ext != ".png" && ext != ".jpeg" && ext != ".jpg" {
-			continue
+			return nil, fmt.Errorf("Unrecognized file extension, %q", ext)
 		}
 
 		f, err := os.Open(fn)
 		if err != nil {
-			return nil, fmt.Errorf("Could not open file: %q", fn)
+			return nil, fmt.Errorf("Could not open file, %q", fn)
 		}
 
 		defer f.Close()
@@ -52,7 +36,7 @@ func getImageData(filenames []string) (images map[string]*image.Image, err error
 		if ext == ".png" {
 			img, err := png.Decode(f)
 			if err != nil {
-				return nil, fmt.Errorf("Problem decoding PNG image: %q", fn)
+				return nil, fmt.Errorf("Problem decoding PNG image, %q", fn)
 			}
 
 			images[name] = &img
@@ -60,7 +44,7 @@ func getImageData(filenames []string) (images map[string]*image.Image, err error
 		} else if ext == ".jpg" || ext == ".jpeg" {
 			img, err := jpeg.Decode(f)
 			if err != nil {
-				return nil, fmt.Errorf("Problem decoding JPEG image: %q", fn)
+				return nil, fmt.Errorf("Problem decoding JPEG image, %q", fn)
 			}
 
 			images[name] = &img
@@ -68,30 +52,4 @@ func getImageData(filenames []string) (images map[string]*image.Image, err error
 	}
 
 	return images, nil
-}
-
-func getImagePaths(config *SpriteConfig, retina bool) ([]string, error) {
-
-	var files []string
-
-	for _, s := range config.Includes {
-		j, err := filepath.Abs(s)
-		if err != nil {
-			return nil, fmt.Errorf("ERROR: Could not determine absolute path of includes: %s", err)
-		}
-
-		matches, err := filepath.Glob(j)
-		if err != nil {
-			return nil, fmt.Errorf("ERROR: Could not glob matching files: %s", err)
-		}
-
-		for _, m := range matches {
-			hasRetinaTag := (strings.Index(m, retinaTag) != -1)
-			if retina == hasRetinaTag {
-				files = append(files, m)
-			}
-		}
-	}
-
-	return files, nil
 }

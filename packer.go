@@ -2,59 +2,12 @@ package packer
 
 import (
 	"fmt"
-	"image"
-	"image/draw"
 	"sort"
 )
 
-type Result struct {
-	Sprite     *image.RGBA
-	Sprite2x   *image.RGBA
-	Stylesheet string
-}
-
-// CreateSprite creates a sprite and stylesheet for the config data.
-func CreateSprite(config *SpriteConfig) (*Result, error) {
-
-	includeRetina := false
-	images, err := getImageMap(config, includeRetina)
-	if err != nil {
-		return nil, err
-	}
-
-	// create proxy for each image ... name + width + height
-	blocks := make(Blocks, len(images))
-	i := 0
-	for name, image := range images {
-		img := *image
-		w := img.Bounds().Max.X - img.Bounds().Min.X
-		h := img.Bounds().Max.Y - img.Bounds().Min.Y
-		blocks[i] = NewBlock(name, w, h)
-
-		i++
-	}
-
-	canvas := BestFit(blocks)
-
-	m := image.NewRGBA(image.Rect(0, 0, canvas.Root.Width, canvas.Root.Height))
-	draw.Draw(m, m.Bounds(), ColorToUniform(config.Background), image.ZP, draw.Src)
-
-	for _, b := range canvas.Blocks {
-		img, ok := images[b.Name]
-		if ok {
-			src := *img
-			dp := image.Pt(b.X, b.Y)
-			r := image.Rectangle{dp, dp.Add(image.Pt(b.Width, b.Height))}
-			draw.Draw(m, r, src, image.ZP, draw.Src)
-		}
-	}
-
-	return &Result{m, nil, "tbd"}, nil
-}
-
-// BestFit packs blocks into a rectangle using 4 different sorting algorithms,
+// Fit packs blocks into a rectangle using 4 different sorting algorithms,
 // modifying the x/y of the block to give the tighest pack in a rectangle.
-func BestFit(blocks Blocks) *Canvas {
+func Fit(blocks Blocks) *Canvas {
 
 	// compute area of the shapes to determine best layout below
 	blockArea := 0
@@ -68,10 +21,10 @@ func BestFit(blocks Blocks) *Canvas {
 	byMax := make(Blocks, len(blocks))
 
 	for i, s := range blocks {
-		byWidth[i] = NewBlock(s.Name, s.Width, s.Height)
-		byHeight[i] = NewBlock(s.Name, s.Width, s.Height)
-		byArea[i] = NewBlock(s.Name, s.Width, s.Height)
-		byMax[i] = NewBlock(s.Name, s.Width, s.Height)
+		byWidth[i] = &Block{Name: s.Name, Width: s.Width, Height: s.Height}
+		byHeight[i] = &Block{Name: s.Name, Width: s.Width, Height: s.Height}
+		byArea[i] = &Block{Name: s.Name, Width: s.Width, Height: s.Height}
+		byMax[i] = &Block{Name: s.Name, Width: s.Width, Height: s.Height}
 
 		blockArea += s.Width * s.Height
 	}
@@ -81,17 +34,17 @@ func BestFit(blocks Blocks) *Canvas {
 	// to perform concurrently
 	ch := make(chan *Canvas)
 
-	go doit(ch, byWidth, LayoutByWidth)
-	go doit(ch, byHeight, LayoutByHeight)
-	go doit(ch, byArea, LayoutByArea)
-	go doit(ch, byMax, LayoutByMax)
-
 	// Canvi ... canvases
 	numCanvi := 4
 
 	// TODO DANGER what if we're laying huge, int64 range area here
 	// Should we just use int64 everywhere instead of int ??
 	minWaste := 1<<31 - 1
+
+	go layoutCanvas(ch, byWidth, LayoutByWidth)
+	go layoutCanvas(ch, byHeight, LayoutByHeight)
+	go layoutCanvas(ch, byArea, LayoutByArea)
+	go layoutCanvas(ch, byMax, LayoutByMax)
 
 	var bestCanvas *Canvas
 
@@ -109,7 +62,7 @@ func BestFit(blocks Blocks) *Canvas {
 	return bestCanvas
 }
 
-func doit(ch chan<- *Canvas, blocks Blocks, layout Layout) {
+func layoutCanvas(ch chan<- *Canvas, blocks Blocks, layout Layout) {
 	switch layout {
 	case LayoutByWidth:
 		sort.Sort(BlocksByWidth(blocks))
@@ -121,7 +74,7 @@ func doit(ch chan<- *Canvas, blocks Blocks, layout Layout) {
 		sort.Sort(BlocksByMax(blocks))
 	}
 
-	canvas := Fit(blocks)
+	canvas := fit(blocks)
 	canvas.layout = layout
 	ch <- canvas
 }
@@ -129,9 +82,9 @@ func doit(ch chan<- *Canvas, blocks Blocks, layout Layout) {
 // Fit blocks in a rectangle.  Blocks must be sorted before calling Fit.  It's
 // easiest to call BestFit which calls this method with 4 different sorts to
 // determine the tightest packing.
-func Fit(blocks Blocks) *Canvas {
+func fit(blocks Blocks) *Canvas {
 
-	root := newXYBlock("", 0, 0, blocks[0].Width, blocks[0].Height)
+	root := &Block{Width: blocks[0].Width, Height: blocks[0].Height}
 	canvas := &Canvas{Root: root}
 
 	for _, block := range blocks {
@@ -150,7 +103,7 @@ func Fit(blocks Blocks) *Canvas {
 
 func (c *Canvas) dup(nodes Blocks) *Canvas {
 	r := c.Root
-	root := newXYBlock("#root#", r.X, r.Y, r.Width, r.Height)
+	root := &Block{Name: "#root#", X: r.X, Y: r.Y, Width: r.Width, Height: r.Height}
 	blocks := make(Blocks, len(nodes))
 	for i, s := range nodes {
 		blocks[i] = s.fit
@@ -174,8 +127,8 @@ func (c *Canvas) findNode(node *Block, w, h int) *Block {
 
 func (c *Canvas) splitNode(node *Block, w, h int) *Block {
 	node.used = true
-	node.down = newXYBlock("", node.X, node.Y+h, node.Width, node.Height-h)
-	node.right = newXYBlock("", node.X+w, node.Y, node.Width-w, h)
+	node.down = &Block{X: node.X, Y: node.Y + h, Width: node.Width, Height: node.Height - h}
+	node.right = &Block{X: node.X + w, Y: node.Y, Width: node.Width - w, Height: h}
 	node.Width = w
 	node.Height = h
 
@@ -217,10 +170,10 @@ func dup(block *Block) *Block {
 }
 
 func (c *Canvas) growRight(w, h int) *Block {
-	newRoot := newXYBlock("", 0, 0, c.Root.Width+w, c.Root.Height)
+	newRoot := &Block{Width: c.Root.Width + w, Height: c.Root.Height}
 	newRoot.used = true
 	newRoot.down = dup(c.Root)
-	newRoot.right = newXYBlock("", c.Root.Width, 0, w, c.Root.Height)
+	newRoot.right = &Block{X: c.Root.Width, Y: 0, Width: w, Height: c.Root.Height}
 
 	c.Root = newRoot
 
@@ -232,9 +185,9 @@ func (c *Canvas) growRight(w, h int) *Block {
 }
 
 func (c *Canvas) growDown(w, h int) *Block {
-	newRoot := newXYBlock("", 0, 0, c.Root.Width, c.Root.Height+h)
+	newRoot := &Block{Width: c.Root.Width, Height: c.Root.Height + h}
 	newRoot.used = true
-	newRoot.down = newXYBlock("", 0, c.Root.Height, c.Root.Width, h)
+	newRoot.down = &Block{X: 0, Y: c.Root.Height, Width: c.Root.Width, Height: h}
 	newRoot.right = dup(c.Root)
 
 	c.Root = newRoot

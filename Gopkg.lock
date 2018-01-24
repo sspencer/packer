@@ -2,11 +2,6 @@
 
 
 [[projects]]
-  name = "github.com/BurntSushi/toml"
-  packages = ["."]
-  revision = "a4eecd407cf4129fc902ece859a0114e4cf1a7f4"
-
-[[projects]]
   branch = "master"
   name = "github.com/alecthomas/template"
   packages = [".","parse"]
@@ -19,6 +14,12 @@
   revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/nfnt/resize"
+  packages = ["."]
+  revision = "891127d8d1b52734debe1b3c3d7e747502b6c366"
+
+[[projects]]
   name = "gopkg.in/alecthomas/kingpin.v2"
   packages = ["."]
   revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
@@ -27,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "53b511dcdeb1d1e3320ae87fd589f4eea0806e49217bb71dacb4e8b2a6d1964a"
+  inputs-digest = "6c6d8a3ca01104b68e261fb6447a271eda91274c66a3e90aa643f197bf9e8883"
   solver-name = "gps-cdcl"
   solver-version = 1

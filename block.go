@@ -18,15 +18,6 @@ type Block struct {
 // Blocks is a slice of Blocks
 type Blocks []*Block
 
-// NewBlock records the size of an image to be laid out.
-func NewBlock(name string, w, h int) *Block {
-	return &Block{Name: name, Width: w, Height: h}
-}
-
-func newXYBlock(name string, x, y, w, h int) *Block {
-	return &Block{Name: name, X: x, Y: y, Width: w, Height: h}
-}
-
 func (s *Block) String() string {
 	return fmt.Sprintf("<%q @(%d, %d) %dx%d>", s.Name, s.X, s.Y, s.Width, s.Height)
 }

@@ -137,11 +137,11 @@ func pack(name string, rects []string) {
 	for _, b := range rects {
 		w, h, n := parse(b)
 		for i := 0; i < n; i++ {
-			blocks = append(blocks, packer.NewBlock("", w, h))
+			blocks = append(blocks, &packer.Block{Width: w, Height: h})
 		}
 	}
 
-	canvas := packer.BestFit(blocks)
+	canvas := packer.Fit(blocks)
 
 	render(name, canvas)
 }

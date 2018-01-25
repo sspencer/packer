@@ -15,12 +15,12 @@ import (
 // Given list of file paths, return map of css name to (path/extension removed) to image data
 func (c *Config) getImages(files []string) (map[string]*image.Image, error) {
 	images := make(map[string]*image.Image)
-	re := regexp.MustCompile("([^-a-zA-Z0-9])")
+	re := regexp.MustCompile("([^_a-zA-Z0-9])")
 
 	for _, fn := range files {
 		base := path.Base(fn)
 		ext := strings.ToLower(filepath.Ext(base))
-		name := re.ReplaceAllLiteralString(base[:len(base)-len(ext)], "-")
+		name := re.ReplaceAllLiteralString(base[:len(base)-len(ext)], "_")
 
 		if ext != ".png" && ext != ".jpeg" && ext != ".jpg" {
 			return nil, fmt.Errorf("Unrecognized file extension, %q", ext)

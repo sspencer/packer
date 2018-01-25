@@ -1,6 +1,50 @@
 package packer
 
-const cssTemplate = `
+const CSSTemplate = `
+.{{.Prefix}} {
+  background-image: url({{.ImgURL}}/{{.Name}}.{{.Format}});
+  background-repeat: no-repeat;
+  display: block;
+}
+
+{{range .Images}}
+.{{.Name}}{{.Hover}} {
+  background-position: {{.X}}px {{.Y}}px;
+  width: {{.Width}}px;
+  height: {{.Height}}px;
+}
+{{end}}
+`
+
+const HTMLTemplate = `
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Sprite Test</title>
+    <link href='{{.CSSPath}}'  rel='stylesheet' type='text/css'>
+    <style>html {background:#333; color:white;}</style>
+  </head>
+  <body>
+    <table>
+      <tr><th>Sprites</th><td>&nbsp;&nbsp;</td><th>Image</th></tr>
+      <tr>
+        <td>
+          <table>
+            {{range .Images}}{{if not .Hover }}<tr><td>{{.Name}}</td><td><div class="sprite {{.Name}}"></div></td><td>({{.X}}, {{.Y}})</td></tr>{{end}}{{end}}
+          </table>
+        </td>
+        <td></td>
+        <td valign=top>
+          <img src="{{.ImgPath}}">
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+`
+
+/*
 {{#sprite}}
 {{class}} {
   background-image: url('{{{escaped_image}}}');
@@ -24,4 +68,4 @@ const cssTemplate = `
 }
 
 {{/items}}
-`
+*/

@@ -85,8 +85,8 @@ func (c *Config) createImage(images map[string]*image.Image) *image.RGBA {
 	i := 0
 	for name, image := range images {
 		img := *image
-		w := img.Bounds().Max.X - img.Bounds().Min.X
-		h := img.Bounds().Max.Y - img.Bounds().Min.Y
+		w := img.Bounds().Max.X - img.Bounds().Min.X + c.Margin*2
+		h := img.Bounds().Max.Y - img.Bounds().Min.Y + c.Margin*2
 		blocks[i] = &Block{Name: name, Width: w, Height: h}
 
 		i++
@@ -95,13 +95,13 @@ func (c *Config) createImage(images map[string]*image.Image) *image.RGBA {
 	canvas := Fit(blocks)
 
 	rgba := image.NewRGBA(image.Rect(0, 0, canvas.Root.Width, canvas.Root.Height))
-	draw.Draw(rgba, rgba.Bounds(), ColorToUniform(c.Background), image.ZP, draw.Src)
+	draw.Draw(rgba, rgba.Bounds(), colorToUniform(c.Background), image.ZP, draw.Src)
 
 	for _, b := range canvas.Blocks {
 		img, ok := images[b.Name]
 		if ok {
 			src := *img
-			dp := image.Pt(b.X, b.Y)
+			dp := image.Pt(b.X+c.Margin, b.Y+c.Margin)
 			r := image.Rectangle{dp, dp.Add(image.Pt(b.Width, b.Height))}
 			draw.Draw(rgba, r, src, image.ZP, draw.Src)
 		}

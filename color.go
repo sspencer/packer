@@ -7,10 +7,18 @@ import (
 	"strings"
 )
 
-// HexToRGBA converts a hex rgba string (either #abcd or #aabbccdd) to 4 bytes.
-func HexToRGBA(h string) (uint8, uint8, uint8, uint8) {
+// hexToRGBA converts a hex rgba string (either #abcd or #aabbccdd) to 4 bytes.
+func hexToRGBA(h string) (uint8, uint8, uint8, uint8) {
 	if len(h) > 0 && h[0] == '#' {
 		h = h[1:]
+	}
+
+	if len(h) == 3 {
+		h = h + "f"
+	}
+
+	if len(h) == 6 {
+		h = h + "ff"
 	}
 
 	if len(h) == 4 {
@@ -26,9 +34,9 @@ func HexToRGBA(h string) (uint8, uint8, uint8, uint8) {
 	return 0, 0, 0, 0
 }
 
-// ColorToUniform converts a string color name (only Black, White, Transparent) or
+// 	colorToUniform converts a string color name (only Black, White, Transparent) or
 // hex number (#rgba or #rrggbbaa) to a uniform color.
-func ColorToUniform(hex string) *image.Uniform {
+func colorToUniform(hex string) *image.Uniform {
 	lc := strings.ToLower(hex)
 	switch lc {
 	case "transparent":
@@ -39,8 +47,9 @@ func ColorToUniform(hex string) *image.Uniform {
 		return image.White
 	}
 
-	r, g, b, a := HexToRGBA(hex)
-	if r+g+b+a == 0 {
+	r, g, b, a := hexToRGBA(hex)
+
+	if r+g+b+a == 0 || a == 0 {
 		return image.Transparent
 	}
 

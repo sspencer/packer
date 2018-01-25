@@ -1,7 +1,6 @@
 package packer
 
 import (
-	"fmt"
 	"sort"
 )
 
@@ -51,13 +50,13 @@ func Fit(blocks Blocks) *Canvas {
 	for i := 0; i < numCanvi; i++ {
 		c := <-ch
 		waste := (c.Root.Width * c.Root.Height) - blockArea
-		fmt.Printf("%s <%dx%d> has wasted %d pixels\n", c.layout, c.Root.Width, c.Root.Height, waste)
+		//fmt.Printf("%s <%dx%d> has wasted %d pixels\n", c.layout, c.Root.Width, c.Root.Height, waste)
 		if waste < minWaste {
 			minWaste = waste
 			bestCanvas = c
 		}
 	}
-	fmt.Println("USING ", bestCanvas.layout)
+	//fmt.Println("USING ", bestCanvas.layout)
 
 	return bestCanvas
 }

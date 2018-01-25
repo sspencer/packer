@@ -6,10 +6,10 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"image/png"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/nfnt/resize"
 )
@@ -23,8 +23,7 @@ const hoverTrigger = "_hover"
 type Config struct {
 	Base64     bool
 	Retina     bool
-	CSSPath    string
-	ImgPath    string
+	Output     string
 	ImgURL     string
 	Format     string
 	Name       string
@@ -112,11 +111,10 @@ func (c *Config) createImage(images map[string]*image.Image) *image.RGBA {
 }
 
 func (c *Config) String() string {
-	return fmt.Sprintf("CONFIG: base64=%t retina=%t csspath=%s imgpath=%s imgurl=%s format=%s name=%s prefix=%s bg=%s margin=%d>",
+	return fmt.Sprintf("CONFIG: base64=%t retina=%t output=%s imgurl=%s format=%s name=%s prefix=%s bg=%s margin=%d>",
 		c.Base64,
 		c.Retina,
-		c.CSSPath,
-		c.ImgPath,
+		c.Output,
 		c.ImgURL,
 		c.Format,
 		c.Name,
@@ -127,8 +125,8 @@ func (c *Config) String() string {
 
 // validate config parameters
 func (c *Config) validate() error {
-	if c.ImgPath == "" {
-		c.Base64 = true
+	if c.Output == "" {
+		c.Output = "."
 	}
 
 	if c.Margin < 0 || c.Margin > 100 {
@@ -139,22 +137,16 @@ func (c *Config) validate() error {
 		return fmt.Errorf("illegal option %q for format (only 'png' or 'jpg' allowed)", c.Format)
 	}
 
+	if c.Format == "jpg" && strings.ToLower(c.Background) == "transparent" {
+		c.Background = "white"
+	}
+
 	return nil
 }
 
 // Save saves stylesheet and image(s) to disk.
 func (c *Config) Save(sprite *Sprite) error {
-	fn, err := filepath.Abs(path.Join(c.CSSPath, fmt.Sprintf("%s.css", c.Name)))
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(fn, []byte(sprite.Stylesheet), 0644)
-	if err != nil {
-		return err
-	}
-
-	fn, err = filepath.Abs(path.Join(c.ImgPath, fmt.Sprintf("%s.png", c.Name)))
+	fn, err := filepath.Abs(path.Join(c.Output, fmt.Sprintf("%s.%s", c.Name, c.Format)))
 	if err != nil {
 		return err
 	}
@@ -165,7 +157,7 @@ func (c *Config) Save(sprite *Sprite) error {
 	}
 
 	if sprite.RetinaImage != nil {
-		fn, err = filepath.Abs(path.Join(c.ImgPath, fmt.Sprintf("%s%s.%s", c.Name, retinaTag, c.Format)))
+		fn, err = filepath.Abs(path.Join(c.Output, fmt.Sprintf("%s%s.%s", c.Name, retinaTag, c.Format)))
 		if err != nil {
 			return err
 		}

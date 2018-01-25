@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
+	"image/jpeg"
 	"image/png"
 	"io/ioutil"
 	"os"
@@ -15,7 +16,7 @@ import (
 
 //import
 
-//const retinaTag = "@2x"
+const retinaTag = "@2x"
 const hoverTrigger = "_hover"
 
 // Config is the configuration structure needed to build sprites.
@@ -124,17 +125,14 @@ func (c *Config) String() string {
 		c.Margin)
 }
 
+// validate config parameters
 func (c *Config) validate() error {
 	if c.ImgPath == "" {
 		c.Base64 = true
 	}
 
-	if c.Margin < 0 {
-		c.Margin = 0
-	}
-
-	if c.Margin > 100 {
-		c.Margin = 100
+	if c.Margin < 0 || c.Margin > 100 {
+		return fmt.Errorf("margin must have a value between 0 and 100")
 	}
 
 	if c.Format != "jpg" && c.Format != "png" {
@@ -144,61 +142,47 @@ func (c *Config) validate() error {
 	return nil
 }
 
-// SaveStylesheet saves the css style sheet to the CSSPath specified in the config Sprite value.
-func (c *Config) SaveStylesheet() error {
-
-	fmt.Println("SAVE STYLESHEET")
-	var p string
-	var err error
-	stylesheet := path.Join(c.CSSPath, fmt.Sprintf("%s.css", c.Name))
-
-	if p, err = filepath.Abs(stylesheet); err != nil {
-		return fmt.Errorf("ERROR: Can not write to file %q: %s", p, err)
+// Save saves stylesheet and image(s) to disk.
+func (c *Config) Save(sprite *Sprite) error {
+	fn, err := filepath.Abs(path.Join(c.CSSPath, fmt.Sprintf("%s.css", c.Name)))
+	if err != nil {
+		return err
 	}
 
-	if err = ioutil.WriteFile(p, []byte(stylesheet), 0644); err != nil {
-		return fmt.Errorf("ERROR: Failed writing to file %q: %s", p, err)
+	err = ioutil.WriteFile(fn, []byte(sprite.Stylesheet), 0644)
+	if err != nil {
+		return err
 	}
 
-	return nil
+	fn, err = filepath.Abs(path.Join(c.ImgPath, fmt.Sprintf("%s.png", c.Name)))
+	if err != nil {
+		return err
+	}
+
+	err = c.saveImage(fn, sprite.Image)
+	if err != nil {
+		return err
+	}
+
+	if sprite.RetinaImage != nil {
+		fn, err = filepath.Abs(path.Join(c.ImgPath, fmt.Sprintf("%s%s.%s", c.Name, retinaTag, c.Format)))
+		if err != nil {
+			return err
+		}
+
+		err = c.saveImage(fn, sprite.RetinaImage)
+	}
+
+	return err
 }
 
-// SaveSprite saves the sprite image to file specified in the config Sprite value.
-func (c *Config) SaveSprite(img *image.RGBA) error {
-	fmt.Println("SAVE SPRITE")
-	var p string
-	var err error
-	if p, err = filepath.Abs(c.ImgPath); err != nil {
-		return fmt.Errorf("ERROR: Can not write to file %q: %s", p, err)
-	}
-
-	w, _ := os.Create(p)
+// save given image to disk
+func (c *Config) saveImage(fn string, img *image.RGBA) error {
+	w, _ := os.Create(fn)
 	defer w.Close()
-	png.Encode(w, img)
-	return nil
-}
+	if c.Format == "png" {
+		return png.Encode(w, img)
+	}
 
-// SaveRetinaSprite saves the retina sprite image, if retina config value was set..
-func (c *Config) SaveRetinaSprite(img *image.RGBA) error {
-	/*
-		if !c.Retina {
-			return nil
-		}
-		fmt.Println("SAVE RETINA SPRITE")
-
-		fn := path.Base(c.Sprite)
-		ext := path.Ext(c.Sprite)
-		fn = path.Dir(c.Sprite) + fn[:len(fn)-len(ext)] + retinaTag + ext
-		fmt.Printf("  Retina filename: %q", fn)
-
-		var err error
-		if fn, err = filepath.Abs(fn); err != nil {
-			return fmt.Errorf("ERROR: Can not write to file %q: %s", fn, err)
-		}
-
-		w, _ := os.Create(fn)
-		defer w.Close()
-		png.Encode(w, img)
-	*/
-	return nil
+	return jpeg.Encode(w, img, nil)
 }

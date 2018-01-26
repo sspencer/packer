@@ -26,15 +26,15 @@ const HTMLTemplate = `
     <style>html {background:#333; color:white;}</style>
   </head>
   <body>
-    <table>
-      <tr><th>Sprites</th><td>&nbsp;&nbsp;</td><th>Image</th></tr>
+    <table cellspacing="40">
+      <tr><th>Sprites</th><th>Image</th></tr>
       <tr>
         <td>
-          <table>
-            {{range .Images}}{{if not .Hover }}<tr><td>{{.Name}}</td><td><div class="sprite {{.Name}}"></div></td><td>({{.X}}, {{.Y}})</td></tr>{{end}}{{end}}
+          <table cellpadding="4">
+            <th>Name</th><th>Icon</th><th>(X,Y)</th><th>W x H</th></tr>
+            {{range .Images}}{{if not .Hover }}<tr><td>{{.Name}}</td><td><div class="sprite {{.Name}}"></div></td><td>({{.X}}, {{.Y}})<td>{{.Width}} x {{.Height}}</td></tr>{{end}}{{end}}
           </table>
         </td>
-        <td></td>
         <td valign=top>
           <img src="{{.ImgPath}}">
         </td>
